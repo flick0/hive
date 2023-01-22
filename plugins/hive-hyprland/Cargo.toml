@@ -2,5 +2,10 @@
 name = "hive-hyprland"
 version = "0.1.0"
 edition = "2021"
+crate-type = "cdylib"
+
+[lib]
+name = "hyprland_hive"
+crate-type = ["cdylib", 'rlib']
 
 [dependencies]
