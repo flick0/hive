@@ -1,6 +1,8 @@
 use std::path::Path;
 use std::fs::{File,create_dir_all};
 
+use calloop::EventLoop;
+
 use daemonize::Daemonize;
 
 fn main() -> Result<(), String> {
@@ -8,9 +10,16 @@ fn main() -> Result<(), String> {
     let no_daemon = std::env::args().any(|arg| arg == "--no-daemon");
     
     if no_daemon {
-        return main_loop();
+        match run_main_loop(){
+            Ok(_) => {},
+            Err(e) => {
+                return Err(format!("Error starting daemon, {}",e.to_string()))
+            },
+        }
     }
     
+    // make daemon
+
     let tmp_path = Path::new("/tmp/hive");
 
     if !tmp_path.exists() && !tmp_path.is_dir() {
@@ -20,7 +29,7 @@ fn main() -> Result<(), String> {
     let stdout = File::create(tmp_path.join("hive.out")).unwrap();
     let stderr = File::create(tmp_path.join("hive.err")).unwrap();
 
-    let daemonize = Daemonize::new()
+    let daemonize:Daemonize<Result<(), calloop::Error>> = Daemonize::new()
         .pid_file("/tmp/hive/hive.pid") // Every method except `new` and `start`
         .working_directory("/tmp") // for default behaviour.
         .user("nobody")
@@ -30,7 +39,7 @@ fn main() -> Result<(), String> {
         .stdout(stdout)  // Redirect stdout to `/tmp/hive.out`.
         .stderr(stderr)  // Redirect stderr to `/tmp/hive.err`.
         .exit_action(on_exit)
-        .privileged_action(main_loop);
+        .privileged_action(run_main_loop);
 
     match daemonize.start() {
         Ok(_) => println!("Success, daemonized"),
@@ -41,12 +50,31 @@ fn main() -> Result<(), String> {
     Ok(())
 }
 
-fn main_loop() -> Result<(), String> {
-    loop {
-        println!("running daemon");
-        std::thread::sleep(std::time::Duration::from_secs(1));
-    }
-    //Ok(())
+fn run_main_loop() -> Result<(), calloop::Error>{
+    let (exec, sched) = calloop::futures::executor()?;
+
+    let mut event_loop = EventLoop::try_new()?;
+    let handle = event_loop.handle();
+
+    handle
+        .insert_source(exec, |evt, _metadata, _shared| {
+            // Print the value of the async block ie. the return value.
+            println!("Async block ended with: {:#?}", evt);
+        })
+        .map_err(|e| e.error)?;
+
+    sched.schedule(main_loop()).unwrap();
+    
+    println!("Starting event loop. Use Ctrl-C to exit.");
+    event_loop.run(None, &mut (), |_| {})?;
+    println!("Event loop ended.");
+
+    Ok(())
+}
+
+async fn main_loop() -> Result<(), String> {
+    println!("started async daemon woooooo");
+    Ok(())
 }
 
 fn on_exit() {
