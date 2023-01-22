@@ -1,7 +1,4 @@
-use std::{
-    path::PathBuf,
-    process::Stdio,
-};
+use std::{path::PathBuf, process::Stdio};
 
 fn main() {
     let no_daemon = std::env::args().any(|arg| arg == "--no-daemon");
