@@ -3,9 +3,13 @@
 version = 3
 
 [[package]]
-name = "bee-hyprland"
+name = "hive"
 version = "0.1.0"
 
 [[package]]
-name = "hive"
+name = "hive-daemon"
+version = "0.1.0"
+
+[[package]]
+name = "hive-hyprland"
 version = "0.1.0"
