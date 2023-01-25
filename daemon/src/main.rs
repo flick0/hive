@@ -2,17 +2,15 @@ use std::fs::{create_dir_all, File};
 use std::path::Path;
 
 use calloop::EventLoop;
-
 use daemonize::Daemonize;
 
-fn main() -> Result<(), String> {
+use anyhow::{Context,Result,bail};
+
+fn main() -> Result<()> {
     let no_daemon = std::env::args().any(|arg| arg == "--no-daemon");
 
     if no_daemon {
-        match run_main_loop() {
-            Ok(_) => {}
-            Err(e) => return Err(format!("Error starting hive-daemon, {}", e)),
-        }
+        run_main_loop().with_context(||"failed to run main loop outside daemon")?;
     }
 
     // make daemon
@@ -26,7 +24,7 @@ fn main() -> Result<(), String> {
     let stdout = File::create(tmp_path.join("hive.out")).unwrap();
     let stderr = File::create(tmp_path.join("hive.err")).unwrap();
 
-    let daemonize: Daemonize<Result<(), calloop::Error>> = Daemonize::new()
+    let daemonize: Daemonize<Result<()>> = Daemonize::new()
         .pid_file("/tmp/hive/hive.pid") // Every method except `new` and `start`
         .working_directory("/tmp") // for default behaviour.
         .user("nobody")
@@ -38,14 +36,15 @@ fn main() -> Result<(), String> {
         .exit_action(||println!("started daemon"))
         .privileged_action(run_main_loop);
 
-    match daemonize.start() {
-        Ok(_) => println!("Success, daemonized"),
-        Err(e) => return Err(format!("Error starting daemon, {}", e)),
-    }
-    Ok(())
+    match daemonize.start(){
+        Ok(_) => return Ok(()),
+        Err(e) => {
+            bail!("failed to start daemon: {}",e)
+        }
+    };
 }
 
-fn run_main_loop() -> Result<(), calloop::Error> {
+fn run_main_loop() -> Result<()> {
     let (exec, sched) = calloop::futures::executor()?;
 
     let mut event_loop = EventLoop::try_new()?;
@@ -67,7 +66,8 @@ fn run_main_loop() -> Result<(), calloop::Error> {
     Ok(())
 }
 
-async fn main_loop() -> Result<(), String> {
+async fn main_loop() -> Result<()> {
     println!("started async daemon woooooo");
+    std::fs::read("lalala").with_context(||"failed to read file oooo")?;
     Ok(())
 }

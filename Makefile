@@ -7,7 +7,7 @@ plugin:
 build:
 	cargo build --release
 
-install: all
+install: plugin
 	sudo cp target/release/hive /usr/bin/
 	sudo cp target/release/hive-daemon /usr/bin/
 	sudo mkdir -p /usr/lib/hive/plugins
