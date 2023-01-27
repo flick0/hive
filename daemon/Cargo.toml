@@ -7,6 +7,15 @@ edition = "2021"
 
 [dependencies]
 gtk = { version = "0.15", features = [ "v3_22" ] }
+gdk = "0.15"
+glib = "0.15"
+
+cairo-rs = "0.15"
+
+gdk-pixbuf = "0.15"
+
+gtk-layer-shell = { version = "0.4"}
+
 daemonize = "0.4.1"
 calloop = { version = "0.10.5", features = ["executor"] }
 log = { version = "0.4", features = ["max_level_debug", "release_max_level_info"] }

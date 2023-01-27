@@ -343,6 +343,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "gtk-layer-shell"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4316ff523ae445bd6efaf253f217598dd074619fe67b9199b5b0cd5ff99144da"
+dependencies = [
+ "bitflags",
+ "gdk",
+ "glib",
+ "glib-sys",
+ "gtk",
+ "gtk-layer-shell-sys",
+ "libc",
+]
+
+[[package]]
+name = "gtk-layer-shell-sys"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff60230d690445577655416055dbd279d05631b03ab07f935e39f5fe81084c0a"
+dependencies = [
+ "gdk-sys",
+ "glib-sys",
+ "gtk-sys",
+ "libc",
+ "system-deps",
+]
+
+[[package]]
 name = "gtk-sys"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -395,9 +423,14 @@ name = "hive-daemon"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "cairo-rs",
  "calloop",
  "daemonize",
+ "gdk",
+ "gdk-pixbuf",
+ "glib",
  "gtk",
+ "gtk-layer-shell",
  "log",
 ]
 

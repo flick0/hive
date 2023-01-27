@@ -6,6 +6,9 @@ use daemonize::Daemonize;
 
 use anyhow::{Context,Result,bail};
 
+pub mod render;
+pub mod util;
+
 fn main() -> Result<()> {
     let no_daemon = std::env::args().any(|arg| arg == "--no-daemon");
 
